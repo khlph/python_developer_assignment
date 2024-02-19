@@ -5,12 +5,7 @@ from main import app
 
 client = TestClient(app)
 
-# Connect to MongoDB
-db_client = MongoClient("mongodb://localhost:27017/")
-db = db_client["car_listing"]
-cars_collection = db["cars"]
-
-def test_create_car():
+def test_car_api():
   # Define test data
   car_data = {
     "brand": "Toyota",
@@ -23,20 +18,66 @@ def test_create_car():
   # Send POST request to create a new car
   response = client.post("/cars/", json=car_data)
   assert response.status_code == 201
-  cars_collection.delete_many({})
-
-def test_list_car():
-  # Insert test data into the database
-  car_data = {"brand": "Toyota", "model": "Corolla", "year": 2018, "color": "Black", "mileage": 18000.0}
-  cars_collection.insert_one(car_data)
+  car_id = response.json()["id"]
 
   # Send GET request to show all car
   response = client.get(f"/cars/")
   assert response.status_code == 200
-  assert len(response.json()['cars']) == 1
-  cars_collection.delete_many({})
 
-def test_get_car():
+  # Send GET request to retrieve the specific car
+  response = client.get(f"/cars/{car_id}")
+  assert response.status_code == 200
+  assert response.json()['id'] == car_id
+
+  # Send GET request with invalid car_id
+  response = client.get(f"/cars/123")
+  assert response.status_code == 404
+  assert response.json()['detail'] == "Car 123 not found"
+
+  # Send PUT request to update the specific car
+  response = client.put(f"/cars/{car_id}", json={"mileage": 230000.1})
+  assert response.status_code == 200
+  assert response.json()['id'] == car_id
+  assert response.json()['mileage'] == 230000.1
+
+  # Send DELETE request to DELETE the specific car
+  response = client.delete(f"/cars/{car_id}")
+  assert response.status_code == 204
+
+def test_broker_api():
+  # TO:DO
+  # - Add test for invalid email
+
+  # Define test data
+  broker_data = {
+    "name": "John Doe",
+    "email": "some@email.com",
+    "phone_number": "0899999999",
+    "address": "123 Bangkok"
+  }
+  
+  # Send POST request to create a new broker
+  response = client.post("/brokers/", json=broker_data)
+  assert response.status_code == 201
+  broker_id = response.json()["id"]
+  
+  # Send GET request to retrieve the specific broker
+  response = client.get(f"/brokers/{broker_id}")
+  assert response.status_code == 200
+  assert response.json()['id'] == broker_id
+
+  # Send PUT request to update the specific broker
+  response = client.put(f"/brokers/{broker_id}", json={"email": "some1@email.com"})
+  assert response.status_code == 200
+  assert response.json()['id'] == broker_id
+  assert response.json()['email'] == "some1@email.com"
+
+  # Send DELETE request to DELETE the specific broker
+  response = client.delete(f"/brokers/{broker_id}")
+  assert response.status_code == 204
+
+def test_listing_api():
+  # Created Car and Broker before listing
   car_data = {
     "brand": "Toyota",
     "model": "Camry",
@@ -44,41 +85,40 @@ def test_get_car():
     "color": "Blue",
     "mileage": 230000
   }
-  insert_car = cars_collection.insert_one(car_data)
-  car_id = str(insert_car.inserted_id)
+  broker_data = {
+    "name": "John Doe",
+    "email": "some@email.com",
+    "phone_number": "0899999999",
+    "address": "123 Bangkok"
+  }
 
-  # Send GET request to retrieve the specific car
-  response = client.get(f"/cars/{car_id}")
+  car_response = client.post("/cars/", json=car_data)
+  broker_response = client.post("/brokers/", json=broker_data)
+
+  # Define test data
+  listing_data = {
+    "car_id": car_response.json()['id'],
+    "broker_id": broker_response.json()['id'],
+    "price": 200000,
+    "description": "Mint Condition",
+    "status": "ACTIVE",
+  }
+
+  # Send POST request to create a new listing
+  response = client.post("/listing/", json=listing_data)
+  assert response.status_code == 201
+  assert response.json()['status'] == 'ACTIVE'
+  listing_id = response.json()["id"]
+  
+  # Send PUT request to retrieve the specific listing
+  response = client.put(f"/listing/{listing_id}", json={"status": "INACTIVE"})  
   assert response.status_code == 200
-  assert response.json()['id'] == car_id
-  cars_collection.delete_many({})
+  assert response.json()['status'] == 'INACTIVE'
 
-def test_get_car_not_found():
-
-  # Send GET request with invalid car_id
-  response = client.get(f"/cars/123")
-  assert response.status_code == 404
-  assert response.json()['detail'] == "Car 123 not found"
-
-def test_update_car():
-  # Insert test data into the database
-  car_data = {"brand": "Toyota", "model": "Corolla", "year": 2018, "color": "Black", "mileage": 18000.0}
-  insert_car = cars_collection.insert_one(car_data)
-  car_id = str(insert_car.inserted_id)
-
-  # Send GET request to retrieve the specific car
-  response = client.put(f"/cars/{car_id}", json={"mileage": 18001.1})
+  # Send GET request to list a status of listing
+  response = client.get("/listing?status=INACTIVE")
   assert response.status_code == 200
-  assert response.json()['id'] == car_id
-  assert response.json()['id'] == 18001.1
-  cars_collection.delete_many({})
 
-def test_delete_car():
-  # Insert test data into the database
-  car_data = {"brand": "Toyota", "model": "Corolla", "year": 2018, "color": "Black", "mileage": 18000.0}
-  insert_car = cars_collection.insert_one(car_data)
-  car_id = str(insert_car.inserted_id)
-
-  # Send GET request to retrieve the specific car
-  response = client.delete(f"/cars/{car_id}")
+  # Send DELETE request to DELETE the specific listing
+  response = client.delete(f"/listing/{listing_id}")
   assert response.status_code == 204
