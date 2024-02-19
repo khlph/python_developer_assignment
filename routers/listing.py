@@ -6,8 +6,12 @@ from pymongo import MongoClient, ReturnDocument
 from models import ListingModel, ListingModelInDB, UpdateListingModel, ListingCollection
 
 from bson import ObjectId
+import os
 
-client = MongoClient("mongodb://localhost:27017/")
+# Get MongoDB server host from environment variable
+mongo_server_host = os.environ.get("MONGO_SERVER_HOST", "localhost")
+
+client = MongoClient(f"mongodb://{mongo_server_host}:27017/")
 db = client["car_listing"]
 cars_collection = db["cars"]
 brokers_collection = db["brokers"]
