@@ -5,8 +5,8 @@ This FastAPI-based API enables the management of car listings on an e-commerce p
 ## Functionality
 
 * Create, read, update, and delete (CRUD) operations for Cars and Brokers.
-* Retrieve car listing statuses (inactive, active, sold).
-* Implement data models using Pydantic (or JSON Schema if Pydantic is unavailable).
+* Retrieve car listing statuses (INACTIVE, ACTIVE, SOLD).
+* Implement data models using Pydantic.
 * API documentation using Swagger.
 * Dockerized application for easy setup and deployment.
 
@@ -22,6 +22,9 @@ This FastAPI-based API enables the management of car listings on an e-commerce p
 Run the following command to build and start the containers
 
 ```bash
+git clone https://github.com/khlph/python_developer_assignment.git
+cd python_developer_assignment
+
 docker-compose up --build
 ```
 
