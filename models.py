@@ -4,7 +4,7 @@ from pydantic.functional_validators import BeforeValidator
 
 from typing_extensions import Annotated
 
-# Nice reference
+# Very nice documentation
 # https://fastapi.tiangolo.com/tutorial/extra-models/
 
 # Represents an ObjectId field in the database.
@@ -21,6 +21,19 @@ class CarModel(BaseModel):
   year: int = Field(...)
   color: str = Field(...)
   mileage: float = Field(...)
+  model_config = {
+    "json_schema_extra": {
+      "examples": [
+        {
+          "brand": "Toyota",
+          "model": "Camry",
+          "year": 2010,
+          "color": "Blue",
+          "mileage": 230000
+        }
+      ]
+    }
+  }
 
 class UpdateCarModel(BaseModel):
   """
@@ -47,6 +60,18 @@ class BrokerModel(BaseModel):
   email: EmailStr = Field(...)
   phone_number: str = Field(...)
   address: str = Field(...)
+  model_config = {
+    "json_schema_extra": {
+      "examples": [
+        {
+          "name": "John Doe",
+          "email": "some@email.com",
+          "phone_number": "0899999999",
+          "address": "123 Bangkok"
+        }
+      ]
+    }
+  }
 
 class UpdateBrokerModel(BaseModel):
   """
@@ -65,6 +90,17 @@ class ListingModel(BaseModel):
   price: float = Field(...)
   description: str = Field(...)
   status: str = Field(...)
+  model_config = {
+    "json_schema_extra": {
+      "examples": [
+        {
+          "price": 200000,
+          "description": "Mint Condition",
+          "status": "ACTIVE",
+        }
+      ]
+    }
+  }
 
   @field_validator('status')
   @classmethod

@@ -29,3 +29,9 @@ docker-compose up --build
 
 The API will be available at http://localhost:8000/.
 Explore API endpoints and interactive documentation using Swagger at http://localhost:8000/docs.
+
+## Special Thanks
+
+[MongoDB Developer Hub](https://www.mongodb.com/developer/languages/python/python-quickstart-fastapi/) for their Python FastAPI Quick Start guide. \
+ChatGPT and Gemini Advance for assistance and guidance throughout the development process. \
+Their assistance was essential in utilizing my data engineering background to create this API.
